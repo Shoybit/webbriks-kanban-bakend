@@ -78,3 +78,40 @@ export const getBoardColumns = async (
     },
   });
 };
+
+export const updateColumn = async (
+  columnId: string,
+  userId: string,
+  name: string
+) => {
+  const column = await prisma.column.findFirst({
+    where: {
+      id: columnId,
+      board: {
+        OR: [
+          { ownerId: userId },
+          {
+            members: {
+              some: {
+                userId,
+              },
+            },
+          },
+        ],
+      },
+    },
+  });
+
+  if (!column) {
+    throw new Error("Column not found");
+  }
+
+  return prisma.column.update({
+    where: {
+      id: columnId,
+    },
+    data: {
+      name,
+    },
+  });
+};
