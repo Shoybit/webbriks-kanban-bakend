@@ -4,6 +4,7 @@ import {
   createColumn,
   getBoardColumns,
   updateColumn,
+  deleteColumn,
 } from "./column.service";
 
 export const create = async (req: AuthRequest, res: Response) => {
@@ -100,6 +101,29 @@ export const update = async (req: AuthRequest, res: Response) => {
 
     return res.status(500).json({
       message: "Failed to update column",
+    });
+  }
+};
+
+export const remove = async (req: AuthRequest, res: Response) => {
+  try {
+    const columnId = String(req.params.columnId);
+
+    await deleteColumn(
+      columnId,
+      req.user!.userId
+    );
+
+    return res.status(204).send();
+  } catch (error) {
+    if (error instanceof Error && error.message === "Column not found") {
+      return res.status(404).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Failed to delete column",
     });
   }
 };
