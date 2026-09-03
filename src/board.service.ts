@@ -101,3 +101,68 @@ export const updateBoard = async (
     },
   });
 };
+
+export const deleteBoard = async (
+  boardId: string,
+  userId: string
+) => {
+  const board = await prisma.board.findFirst({
+    where: {
+      id: boardId,
+      ownerId: userId,
+    },
+  });
+
+  if (!board) {
+    throw new Error("Board not found");
+  }
+
+  await prisma.board.delete({
+    where: {
+      id: boardId,
+    },
+  });
+};
+
+export const addBoardMember = async (
+  boardId: string,
+  ownerId: string,
+  userEmail: string
+) => {
+  const board = await prisma.board.findFirst({
+    where: {
+      id: boardId,
+      ownerId,
+    },
+  });
+
+  if (!board) {
+    throw new Error("Board not found");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return prisma.boardMember.create({
+    data: {
+      boardId,
+      userId: user.id,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+};

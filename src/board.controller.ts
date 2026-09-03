@@ -1,7 +1,9 @@
 import { Response } from "express";
 import { AuthRequest } from "./auth.middleware";
 import {
+  addBoardMember,
   createBoard,
+  deleteBoard,
   getBoardById,
   getUserBoards,
   updateBoard,
@@ -97,6 +99,78 @@ export const update = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({
         message: error.message,
       });
+    }
+
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const remove = async (req: AuthRequest, res: Response) => {
+  try {
+    const boardId = req.params.id;
+
+    if (!boardId || Array.isArray(boardId)) {
+      return res.status(400).json({
+        message: "Invalid board ID",
+      });
+    }
+
+    await deleteBoard(boardId, req.user!.userId);
+
+    return res.status(204).send();
+  } catch (error) {
+    if (error instanceof Error && error.message === "Board not found") {
+      return res.status(404).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const addMember = async (req: AuthRequest, res: Response) => {
+  try {
+    const boardId = req.params.id;
+
+    if (!boardId || Array.isArray(boardId)) {
+      return res.status(400).json({
+        message: "Invalid board ID",
+      });
+    }
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "User email is required",
+      });
+    }
+
+    const member = await addBoardMember(
+      boardId,
+      req.user!.userId,
+      email
+    );
+
+    return res.status(201).json(member);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Board not found") {
+        return res.status(404).json({
+          message: error.message,
+        });
+      }
+
+      if (error.message === "User not found") {
+        return res.status(404).json({
+          message: error.message,
+        });
+      }
     }
 
     return res.status(500).json({
