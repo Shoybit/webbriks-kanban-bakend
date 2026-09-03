@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "./auth.middleware";
+import { moveTask } from "./task.service";
 import {
   createTask,
   getColumnTasks,
@@ -121,6 +122,45 @@ export const remove = async (req: AuthRequest, res: Response) => {
 
     return res.status(500).json({
       message: "Failed to delete task",
+    });
+  }
+};
+
+export const move = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskId = String(req.params.taskId);
+    const { columnId, position } = req.body;
+
+    if (!columnId || typeof position !== "number") {
+      return res.status(400).json({
+        message: "Column ID and position are required",
+      });
+    }
+
+    const task = await moveTask(
+      taskId,
+      req.user!.userId,
+      columnId,
+      position
+    );
+
+    return res.status(200).json({
+      message: "Task moved successfully",
+      task,
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message === "Task not found" ||
+        error.message === "Target column not found")
+    ) {
+      return res.status(404).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Failed to move task",
     });
   }
 };
