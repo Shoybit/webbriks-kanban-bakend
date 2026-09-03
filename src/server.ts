@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import boardRoutes from "./board.routes";
 import authRoutes from "./auth.routes";
 import columnRoutes from "./column.routes";
+import taskRoutes from "./task.routes";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/boards", boardRoutes);
 app.use("/api/columns", columnRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ message: "API is running" });
