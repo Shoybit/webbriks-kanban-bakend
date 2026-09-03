@@ -4,6 +4,7 @@ import {
   createTask,
   getColumnTasks,
   updateTask,
+  deleteTask,
 } from "./task.service";
 
 export const create = async (req: AuthRequest, res: Response) => {
@@ -97,6 +98,29 @@ export const update = async (req: AuthRequest, res: Response) => {
 
     return res.status(500).json({
       message: "Failed to update task",
+    });
+  }
+};
+
+export const remove = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskId = String(req.params.taskId);
+
+    await deleteTask(
+      taskId,
+      req.user!.userId
+    );
+
+    return res.status(204).send();
+  } catch (error) {
+    if (error instanceof Error && error.message === "Task not found") {
+      return res.status(404).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Failed to delete task",
     });
   }
 };
