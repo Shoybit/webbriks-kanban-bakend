@@ -75,3 +75,29 @@ export const getBoardById = async (boardId: string, userId: string) => {
 
   return board;
 };
+
+export const updateBoard = async (
+  boardId: string,
+  userId: string,
+  name: string
+) => {
+  const board = await prisma.board.findFirst({
+    where: {
+      id: boardId,
+      ownerId: userId,
+    },
+  });
+
+  if (!board) {
+    throw new Error("Board not found");
+  }
+
+  return prisma.board.update({
+    where: {
+      id: boardId,
+    },
+    data: {
+      name,
+    },
+  });
+};
