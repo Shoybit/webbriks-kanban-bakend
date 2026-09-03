@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import boardRoutes from "./board.routes";
 import authRoutes from "./auth.routes";
 
 dotenv.config();
@@ -11,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/boards", boardRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ message: "API is running" });
