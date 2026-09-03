@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import boardRoutes from "./board.routes";
 import authRoutes from "./auth.routes";
+import columnRoutes from "./column.routes";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 
 app.use("/api/boards", boardRoutes);
+app.use("/api/columns", columnRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ message: "API is running" });
