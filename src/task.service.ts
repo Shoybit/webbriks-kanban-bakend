@@ -84,3 +84,44 @@ export const getColumnTasks = async (
     },
   });
 };
+
+export const updateTask = async (
+  taskId: string,
+  userId: string,
+  title: string,
+  description?: string
+) => {
+  const task = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+      column: {
+        board: {
+          OR: [
+            { ownerId: userId },
+            {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  });
+
+  if (!task) {
+    throw new Error("Task not found");
+  }
+
+  return prisma.task.update({
+    where: {
+      id: taskId,
+    },
+    data: {
+      title,
+      ...(description !== undefined ? { description } : {}),
+    },
+  });
+};
